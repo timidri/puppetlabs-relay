@@ -33,6 +33,7 @@ default_facts.each do |fact, value|
 end
 
 RSpec.configure do |c|
+  c.mock_with :rspec
   c.default_facts = default_facts
   c.before :each do
     # set to strictest setting for testing
@@ -41,6 +42,7 @@ RSpec.configure do |c|
     Puppet.settings[:strict_variables] = true
   end
   c.filter_run_excluding(bolt: true) unless ENV['GEM_BOLT']
+  c.filter_run_when_matching :focus
   c.after(:suite) do
   end
 end
