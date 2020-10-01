@@ -57,6 +57,7 @@ module Puppet::Util::Relay
   def do_request(uri, http_verb, body, access_token: nil)
     uri = URI.parse(uri)
 
+    puts "posting #{body.to_json}"[0..350]
     Net::HTTP.start(uri.host,
                     uri.port,
                     use_ssl: uri.scheme == 'https',

@@ -1,20 +1,19 @@
-require 'spec_helper_acceptance'
+require 'spec_acceptance_helper'
 
 describe 'Relay reporting' do
   let(:params) do
-    relay_config = relay_instance.bolt_config['remote']
+    relay_config = bolt_config['remote']
 
     {
-      instance: servicenow_instance.uri,
-      user: servicenow_config['user'],
-      password: servicenow_config['password'],
+      reports_url: 'https://api.stage.relay-infra.net/api/events',
+      access_token: ENV['RELAY_ACCESS_TOKEN'],
     }
   end
   let(:setup_manifest) do
-    to_manifest(declare('Service', 'pe-puppetserver'), declare('class', 'servicenow_reporting_integration::event_management', params))
+    to_manifest(declare('Service', 'pe-puppetserver'), declare('class', 'relay::reporting', params))
   end
 
-  include_context 'event query setup'
+  include_context 'reporting test setup'
 
   it 'sends a node_report event' do
     set_sitepp_content(declare('notify', 'foo'))

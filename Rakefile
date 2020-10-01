@@ -87,6 +87,8 @@ end
 
 namespace :acceptance do
   require 'puppet_litmus/rake_tasks'
+  require_relative './spec/support/acceptance/helpers'
+  include TargetHelpers
 
   desc 'Provisions the VMs. This is currently just the master'
   task :provision_vms do

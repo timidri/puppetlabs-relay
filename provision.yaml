@@ -6,7 +6,7 @@ default:
     roles: ['master']
 docker:
   provisioner: docker
-  images: ['centos:7', 'ubuntu:18.04']
+  images: ['centos:7']
   vars: |
     roles: ['master']
 vagrant:

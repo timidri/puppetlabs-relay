@@ -1,0 +1,9 @@
+<%- | String $access_token,
+      String $reports_url,
+      String $report_processor_version,
+| -%>
+# managed by Puppet
+---
+access_token: <%= $access_token %>
+reports_url: <%= $reports_url %>
+report_processor_version: <%= $report_processor_version %>

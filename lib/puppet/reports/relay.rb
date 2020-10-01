@@ -1,4 +1,6 @@
 require 'puppet/util/relay'
+require 'zlib'
+require 'base64'
 
 Puppet::Reports.register_report(:relay) do
   desc "Submit report to Relay workflow trigger"
@@ -29,7 +31,18 @@ Puppet::Reports.register_report(:relay) do
     response = do_request(
       endpoint,
       'Post',
-      self,
+      {
+        'data' => {
+          'report' => Base64.encode64(Zlib.gzip(self.to_json)),
+        # 'data' => { 'report' => {
+        #   'host'    => host,
+        #   'logs'    => logs,
+        #   'summary' => summary,
+        #   'status'  => status,
+        #   'time'    => time,
+        # }},
+        },
+      },
       access_token: settings_hash['access_token'],
     )
     if response.code.to_i >= 300

@@ -17,7 +17,7 @@ describe 'Relay report processor' do
     mock_event_as_resource_status(processor, 'success', false)
 
     expect_sent_report(expected_credentials) do |actual_report|
-      expect(actual_report.resource_statuses.size).to eql(1)
+      expect(actual_report.resource_statuses.size).to be(1)
     end
 
     processor.process
