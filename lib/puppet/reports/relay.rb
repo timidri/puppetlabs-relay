@@ -26,22 +26,23 @@ Puppet::Reports.register_report(:relay) do
   def process_report(settings_hash)
     endpoint = settings_hash['reports_url']
 
+    # Noop is unchanged status, but need to submit these
+    # unless status == 'unchanged'
     Puppet.info(relay_log_entry("attempting to send the report to #{endpoint}"))
 
     response = do_request(
       endpoint,
       'Post',
       {
-        'data' => {
-          'report' => Base64.encode64(Zlib.gzip(self.to_json)),
-        # 'data' => { 'report' => {
-        #   'host'    => host,
-        #   'logs'    => logs,
-        #   'summary' => summary,
-        #   'status'  => status,
-        #   'time'    => time,
-        # }},
-        },
+        'data' => { 'report' => {
+          'host'    => host,
+          'logs'    => logs.each_with_object([]) do |log, a|
+            a.push("#{log.source}: #{log.message}") unless [:debug, :info].include? log.level
+          end,
+          'summary' => summary,
+          'status'  => status,
+          'time'    => time,
+        } },
       },
       access_token: settings_hash['access_token'],
     )
