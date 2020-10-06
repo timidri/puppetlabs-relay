@@ -1,11 +1,5 @@
 # relay
 
-Welcome to your new module. A short overview of the generated parts can be found
-in the [PDK documentation][1].
-
-The README template below provides a starting point with details about what
-information to include in your README.
-
 ## Table of Contents
 
 1. [Description](#description)
@@ -19,43 +13,27 @@ information to include in your README.
 
 ## Description
 
-Briefly tell users why they might want to use your module. Explain what your
-module does and what kind of problems users can solve with it.
-
-This should be a fairly short description helps the user decide if your module
-is what they want.
+This module configures a report processor to submit any changed resources to
+the Relay SaaS event trigger API. Workflows may subscribe to the triggers and
+decide whether to run based on the run status and log lines.
 
 ## Setup
 
-### What relay affects **OPTIONAL**
+The relay processor must be pluginsync'd before it can be used. The report
+processor may be manuLly configured, or may be configured by using the
+`relay::reporting` class
 
-If it's obvious what your module touches, you can skip this section. For
-example, folks can probably figure out that your mysql_instance module affects
-their MySQL instances.
+### Setup Requirements
 
-If there's more that they should know about, though, this is the place to
-mention:
-
-* Files, packages, services, or operations that the module will alter, impact,
-  or execute.
-* Dependencies that your module automatically installs.
-* Warnings or other important notices.
-
-### Setup Requirements **OPTIONAL**
-
-If your module requires anything extra before setting up (pluginsync enabled,
-another module, etc.), mention it here.
-
-If your most recent release breaks compatibility or requires particular steps
-for upgrading, you might want to include an additional "Upgrading" section here.
-
-### Beginning with relay
-
-The very basic steps needed for a user to get the module up and running. This
-can include setup steps, if necessary, or it can be an example of the most basic
-use of the module.
+The report processor requires a puppet compile host to which agents submit
+reports. The report processor also needs an access token that is authorized to
+talk to the Relay API.
 
 ## Usage
+
+* Create a push trigger in a workflow
+* classify any puppet primary servers and compile servers with the class
+* and workflow steps to act on status and logs
 
 Include usage examples for common use cases in the **Usage** section. Show your
 users how to use your module to solve problems, and be sure to include code
@@ -65,41 +43,25 @@ tasks that involve different types, classes, and functions working in tandem.
 
 ## Reference
 
-This section is deprecated. Instead, add reference information to your code as
-Puppet Strings comments, and then use Strings to generate a REFERENCE.md in your
-module. For details on how to add code comments and generate documentation with
-Strings, see the [Puppet Strings documentation][2] and [style guide][3].
-
-If you aren't ready to use Strings yet, manually create a REFERENCE.md in the
-root of your module directory and list out each of your module's classes,
-defined types, facts, functions, Puppet tasks, task plans, and resource types
-and providers, along with the parameters for each.
-
-For each element (class, defined type, function, and so on), list:
-
-* The data type, if applicable.
-* A description of what the element does.
-* Valid values, if the data type doesn't make it obvious.
-* Default value, if any.
-
-For example:
-
-```
-### `pet::cat`
+### `relay::reporting`
 
 #### Parameters
 
-##### `meow`
+##### `access_token`
 
-Enables vocalization in your cat. Valid options: 'string'.
+The token by which the report processor authenticates to the Relay API. Valid
+options: 'string'.
 
-Default: 'medium-loud'.
-```
+##### `reports_url`
+
+The URL of the Relay events API. Valid option: 'string'
+
+Default: 'https://api.relay.sh/api/events'
 
 ## Limitations
 
-In the Limitations section, list any incompatibilities, known issues, or other
-warnings.
+The report processor submits a subset of the full report. Full report
+submission will come soon, as they need to be compressed before transmission.
 
 ## Development
 
