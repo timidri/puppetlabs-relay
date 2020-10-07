@@ -19,27 +19,60 @@ decide whether to run based on the run status and log lines.
 
 ## Setup
 
-The relay processor must be pluginsync'd before it can be used. The report
-processor may be manuLly configured, or may be configured by using the
-`relay::reporting` class
+### Requirements
 
-### Setup Requirements
+You must already have a puppetserver to which puppet agents submit reports.
 
-The report processor requires a puppet compile host to which agents submit
-reports. The report processor also needs an access token that is authorized to
-talk to the Relay API.
+You must already have a Relay account registered. You can sign up for one at
+[https://relay.sh/](https://relay.sh/) if you do not already have one.
 
+### Configuration
+
+The report processor also needs a Relay push-trigger access token that is
+authorized to talk to the Relay API.
+
+### Deployment
+
+The report processor may be automatically set up by classifying the
+puppetserver host with the `relay::reporting` class. This class will:
+
+1. configure the report processor list of the puppetserver to include the relay
+   report processor
+1. place the access token in the appropriate location for the report
+processor
+1. reload the puppetserver process
+
+The classification will look something like this:
+
+```puppet
+class profile::relay_reporting {
+  class { 'relay::reporting':
+    access_token => 'eyJhbGciOiJ......XUsf3o',
+  }
+}
+```
+
+To get an access token prior to deploying the report processor, a workflow push
+token must be configured in Relay.
+
+Please see [our
+documentation](https://relay.sh/docs/reference/relay-workflows/#push) on
+creating push triggers for details on configuring this.
+
+<!--
 ## Usage
+
+
+TODO This area needs filling out.
+
+This should describe how to have steps that actually act on the changed
+resources and the state of a report, but I think that will have to come later
 
 * Create a push trigger in a workflow
 * classify any puppet primary servers and compile servers with the class
 * and workflow steps to act on status and logs
 
-Include usage examples for common use cases in the **Usage** section. Show your
-users how to use your module to solve problems, and be sure to include code
-examples. Include three to five examples of the most important or common tasks a
-user can accomplish with your module. Show users how to accomplish more complex
-tasks that involve different types, classes, and functions working in tandem.
+-->
 
 ## Reference
 
@@ -62,18 +95,3 @@ Default: 'https://api.relay.sh/api/events'
 
 The report processor submits a subset of the full report. Full report
 submission will come soon, as they need to be compressed before transmission.
-
-## Development
-
-In the Development section, tell other users the ground rules for contributing
-to your project and how they should submit their work.
-
-## Release Notes/Contributors/Etc. **Optional**
-
-If you aren't using changelog, put your release notes here (though you should
-consider using changelog). You can also add any additional sections you feel are
-necessary or important to include here. Please use the `##` header.
-
-[1]: https://puppet.com/docs/pdk/latest/pdk_generating_modules.html
-[2]: https://puppet.com/docs/puppet/latest/puppet_strings.html
-[3]: https://puppet.com/docs/puppet/latest/puppet_strings_style.html
