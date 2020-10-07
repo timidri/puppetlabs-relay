@@ -21,26 +21,31 @@ decide whether to run based on the run status and log lines.
 
 ### Requirements
 
-You must already have a puppetserver to which puppet agents submit reports.
+You must already have a puppetserver to which puppet agents submit reports and
+that can connect to the internet.
 
-You must already have a Relay account registered. You can sign up for one at
+You must also have a Relay account registered. You can sign up for one at
 [https://relay.sh/](https://relay.sh/) if you do not already have one.
 
 ### Configuration
 
 The report processor also needs a Relay push-trigger access token that is
-authorized to talk to the Relay API.
+authorized to talk to the Relay API. To get an access token, add a workflow
+push trigger to a Relay workflow and copy the token from the sidebar.
+
+Please see [our
+documentation](https://relay.sh/docs/reference/relay-workflows/#push) for
+further details on configuring push triggers.
 
 ### Deployment
 
 The report processor may be automatically set up by classifying the
 puppetserver host with the `relay::reporting` class. This class will:
 
-1. configure the report processor list of the puppetserver to include the relay
-   report processor
-1. place the access token in the appropriate location for the report
-processor
-1. reload the puppetserver process
+1. configure the report processor list of the puppetserver to include the
+   `relay` report processor
+1. place the access token in the appropriate location for the report processor
+1. reload the puppetserver process to load the new report processor
 
 The classification will look something like this:
 
@@ -51,13 +56,6 @@ class profile::relay_reporting {
   }
 }
 ```
-
-To get an access token prior to deploying the report processor, a workflow push
-token must be configured in Relay.
-
-Please see [our
-documentation](https://relay.sh/docs/reference/relay-workflows/#push) on
-creating push triggers for details on configuring this.
 
 <!--
 ## Usage
@@ -78,12 +76,14 @@ resources and the state of a report, but I think that will have to come later
 
 ### `relay::reporting`
 
+This is class used to configure the report processor.
+
 #### Parameters
 
 ##### `access_token`
 
-The token by which the report processor authenticates to the Relay API. Valid
-options: 'string'.
+*Required:* The token by which the report processor authenticates to the Relay
+API. Valid options: 'string'.
 
 ##### `reports_url`
 
