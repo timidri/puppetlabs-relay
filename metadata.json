@@ -1,12 +1,16 @@
 {
   "name": "puppetlabs-relay",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "Hunter Haugen",
   "summary": "Configure a puppetserver to submit reports to Relay workflow triggers",
   "license": "Apache-2.0",
   "source": "https://github.com/puppetlabs/puppetlabs-relay",
+  "project_page": "https://relay.sh",
   "dependencies": [
-
+    {
+      "name": "puppetlabs/inifile",
+      "version_requirement": ">= 2.2.1 < 5.0.0"
+    }
   ],
   "operatingsystem_support": [
     {
