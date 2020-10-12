@@ -98,13 +98,13 @@ properties for this trigger are derived from the puppet report object as
 detailed in [the official
 documentation](https://puppet.com/docs/puppet/6.17/format_report.html).
 
-##### `host`
+##### `report.host`
 
 Type: string
 
 The hostname that submitted the report.
 
-##### `logs`
+##### `report.logs`
 
 Type: array of strings
 
@@ -112,25 +112,31 @@ An array of the log lines that were `notice` severity or greater. This is
 useful for matching based on changes performed by specific classes, resource
 types, resource titles, property values, etc.
 
-##### `summary`
+##### `report.summary`
 
 Type: string
 
 This is the long-form summary of the puppet run. It is more useful from a human
 perspective but may be inspected programmatically for puppet run information.
 
-##### `status`
+##### `report.status`
 
 Type: string
 
 This is the run status. Useful for detecting runs that caused changes, or runs
 that were failures.
 
-##### `time`
+##### `report.time`
 
 Type: string
 
 The timestamp of when the puppet run began.
+
+##### `facts`
+
+Type: hash
+
+This is the full hash of puppet facts on the host at report time.
 
 ## Limitations
 

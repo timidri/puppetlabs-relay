@@ -23,6 +23,10 @@ Puppet::Reports.register_report(:relay) do
     Puppet.err "relay report processor error: #{e}\n#{e.backtrace}"
   end
 
+  def facts
+    Puppet::Node::Facts.indirection.find(host).values
+  end
+
   def process_report(settings_hash)
     endpoint = settings_hash['reports_url']
 
@@ -34,15 +38,18 @@ Puppet::Reports.register_report(:relay) do
       endpoint,
       'Post',
       {
-        'data' => { 'report' => {
-          'host'    => host,
-          'logs'    => logs.each_with_object([]) do |log, a|
-            a.push("#{log.source}: #{log.message}") unless [:debug, :info].include? log.level
-          end,
-          'summary' => summary,
-          'status'  => status,
-          'time'    => time,
-        } },
+        'data' => {
+          'facts'  => facts,
+          'report' => {
+            'host'    => host,
+            'logs'    => logs.each_with_object([]) do |log, a|
+              a.push("#{log.source}: #{log.message}") unless [:debug, :info].include? log.level
+            end,
+            'summary' => summary,
+            'status'  => status,
+            'time'    => time,
+          },
+        },
       },
       access_token: settings_hash['access_token'],
     )
