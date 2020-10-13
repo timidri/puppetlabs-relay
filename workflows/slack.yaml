@@ -1,0 +1,48 @@
+version: v1
+parameters:
+  slackChannel:
+    default: 'my-channel'
+
+  # From the trigger
+  host:
+    default: 'default'
+  logs:
+    default: 'default'
+  status:
+    default: 'default'
+  time:
+    default: 'default'
+
+triggers:
+- name: puppet-report
+  source:
+    type: push
+  binding:
+    parameters:
+      host: !Data report.host
+      logs: !Data report.logs
+      status: !Data report.status
+      time: !Data report.time
+
+steps:
+- name: detect-sudoers
+  image: relaysh/core
+  spec:
+    logs: !Parameter logs
+  input:
+  - DETECTED_CHANGES=$(ni get | jq -e -r --arg re '\/Sudo::Conf\[.*\]\/' '[.logs[] | select(.|test($re))] | join(", ")')
+  - 'echo "Detected changes, if any: ${DETECTED_CHANGES}"'
+  - 'if [ x = x${DETECTED_CHANGES} ] ; then ni output set -k detected_changes -v none; else ni output set -k detected_changes -v "${DETECTED_CHANGES}" ; fi'
+- name: slack-alert
+  image: relaysh/slack-step-message-send
+  when: !Fn.notEquals [!Output {from: detect-sudoers, name: detected_changes}, 'none']
+  spec:
+    connection: !Connection { type: slack, name: my-slack-app }
+    channel: !Parameter slackChannel
+    username: Puppet via Relay
+    message: !Fn.concat
+    - 'Got sudoers changes on host '
+    - !Parameter host
+    - ': '
+    - !Output {from: detect-sudoers, name: detected_changes}
+
