@@ -1,4 +1,4 @@
-require 'puppet/util/relay'
+require_relative '../util/relay'
 require 'zlib'
 require 'base64'
 

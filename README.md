@@ -50,10 +50,8 @@ puppetserver host with the `relay::reporting` class. This class will:
 The classification will look something like this:
 
 ```puppet
-class profile::relay_reporting {
-  class { 'relay::reporting':
-    access_token => 'eyJhbGciOiJ......XUsf3o',
-  }
+class { 'relay::reporting':
+  access_token => 'eyJhbGciOiJ......XUsf3o',
 }
 ```
 
