@@ -1,11 +1,11 @@
-require_relative '../util/relay'
+require_relative '../../puppet_x/relay/util/relay'
 require 'zlib'
 require 'base64'
 
 Puppet::Reports.register_report(:relay) do
   desc "Submit report to Relay workflow trigger"
 
-  include Puppet::Util::Relay
+  include PuppetX::Relay::Util::Relay
 
   def process
     settings_hash = settings

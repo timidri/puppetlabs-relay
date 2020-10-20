@@ -1,4 +1,4 @@
-require_relative '../lib/puppet/util/relay.rb'
+require_relative '../lib/puppet_x/relay/util/relay.rb'
 
 # This script is used within the 'validate_cmd' parameter of the settings file's
 # File resource
@@ -9,7 +9,7 @@ end
 temporary_settings_file_path = ARGV[0]
 validation_table = ARGV[1]
 
-settings = Puppet::Util::Relay.settings(temporary_settings_file_path)
+settings = PuppetX::Relay::Util::Relay.settings(temporary_settings_file_path)
 
 # Validate the PE console URL
 begin
