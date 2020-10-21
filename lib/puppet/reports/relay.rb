@@ -42,12 +42,16 @@ Puppet::Reports.register_report(:relay) do
           'facts'  => facts,
           'report' => {
             'host'    => host,
+            'time'    => time,
             'logs'    => logs.each_with_object([]) do |log, a|
               a.push("#{log.source}: #{log.message}") unless [:debug, :info].include? log.level
             end,
+            'metrics' => metrics,
+            'configuration_version' => configuration_version,
+            'transaction_uuid' => transaction_uuid,
+            'code_id' => code_id,
             'summary' => summary,
             'status'  => status,
-            'time'    => time,
           },
         },
       },
