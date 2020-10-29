@@ -57,24 +57,6 @@ module PuppetX
           settings_hash
         end
         module_function :settings
-
-        def do_request(uri, http_verb, body, access_token: nil)
-          uri = URI.parse(uri)
-
-          Net::HTTP.start(uri.host,
-                          uri.port,
-                          use_ssl: uri.scheme == 'https',
-                          verify_mode: OpenSSL::SSL::VERIFY_PEER) do |http|
-                            header = { 'Content-Type' => 'application/json' }
-                            request_class_string = "Net::HTTP::#{http_verb.capitalize}"
-                            request_class = Object.const_get(request_class_string)
-                            request = request_class.new("#{uri.path}?#{uri.query}", header)
-                            request.body = body.to_json
-                            request['Authorization'] = "Bearer #{access_token}"
-                            http.request(request)
-                          end
-        end
-        module_function :do_request
       end
     end
   end
