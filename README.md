@@ -17,9 +17,12 @@ This module configures a report processor to submit any changed resources to
 the Relay SaaS event trigger API. Workflows may subscribe to the triggers and
 decide whether to run based on the run status and log lines.
 
+Second, it runs a Relay agent on your puppetserver which can be used to trigger 
+puppet run (without requiring inbound connectivity to your puppetserver).
+
 ## Setup
 
-### Requirements
+### 0. Requirements
 
 You must already have a puppetserver to which puppet agents submit reports and
 that can connect to the internet.
@@ -27,17 +30,38 @@ that can connect to the internet.
 You must also have a Relay account registered. You can sign up for one at
 [https://relay.sh/](https://relay.sh/) if you do not already have one.
 
-### Configuration
+### 1. Setup the Relay workflow
 
-The report processor also needs a Relay push-trigger access token that is
+The report processor needs a Relay push-trigger access token that is
 authorized to talk to the Relay API. To get an access token, add a workflow
 push trigger to a Relay workflow and copy the token from the sidebar.
+
+The workflow trigger in Relay will look something like this:
+```yaml
+triggers:
+  - name: puppet-report
+    source:
+      type: push
+    binding:
+      parameters:
+        host: !Data report.host
+        logs: !Data report.logs
+        status: !Data report.status
+        time: !Data report.time
+        facts: !Data facts
+```
+
+You'll then copy the access token from the sidebar:
+![ Copying access token from the sidebar](https://github.com/puppetlabs/puppetlabs-relay/raw/tasks/update-instructions/media/push-trigger.png)
+
+To see an example of a Relay workflow that uses this trigger, [check it  
+out here](https://github.com/puppetlabs/relay-workflows/tree/master/puppet-shutdown-ec2). 
 
 Please see [our
 documentation](https://relay.sh/docs/reference/relay-workflows/#push) for
 further details on configuring push triggers.
 
-### Deployment
+### 2. Configure the puppetserver
 
 The report processor may be automatically set up by classifying the
 puppetserver host with the `relay::reporting` class. This class will:
@@ -54,7 +78,27 @@ class { 'relay::reporting':
   access_token => 'eyJhbGciOiJ......XUsf3o',
 }
 ```
+## Example #1: Trigger Relay workflow from Puppet run
+Run the Puppet agent (either in noop or enforce mode) to trigger the Relay workflow. 
 
+```bash
+$ puppet agent -t --noop
+```
+
+## Example #2: Trigger Puppet run from Relay
+Configure a Puppet step in your Relay workflow: 
+```yaml
+- name: start-puppet-run
+    image: relaysh/puppet-step-run-start
+    dependsOn: approval
+    spec:
+      connection: !Connection { type: puppet, name: my-puppet-server }
+      environment: production
+      scope:
+        nodes: !Parameter host
+```
+
+When your Relay workflow runs, it will start a puppet run on the target host. 
 <!--
 ## Usage
 
