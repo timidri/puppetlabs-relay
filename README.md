@@ -89,13 +89,12 @@ $ puppet agent -t --noop
 Configure a Puppet step in your Relay workflow: 
 ```yaml
 - name: start-puppet-run
-    image: relaysh/puppet-step-run-start
-    dependsOn: approval
-    spec:
-      connection: !Connection { type: puppet, name: my-puppet-server }
-      environment: production
-      scope:
-        nodes: !Parameter host
+  image: relaysh/puppet-step-run-start
+  spec:
+    connection: !Connection { type: puppet, name: my-puppet-server }
+    environment: production
+    scope:
+      nodes: !Parameter host
 ```
 
 When your Relay workflow runs, it will start a puppet run on the target host. 
