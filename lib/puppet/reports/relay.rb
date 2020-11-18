@@ -42,8 +42,12 @@ Puppet::Reports.register_report(:relay) do
       noop: noop,
       facts: facts,
       status: status,
-      time: time,
-      resources: resource_statuses
+      time: time.iso8601,
+      configuration_version: configuration_version,
+      transaction_uuid: transaction_uuid,
+      code_id: code_id,
+      summary: summary,
+      resource_statuses: resource_statuses
         .select { |_key, value| !value.skipped && (value.change_count > 0 || value.out_of_sync_count > 0) }
         .transform_values do |value|
           {
