@@ -1,5 +1,5 @@
 ---
-relay::backend: ssh
+relay::backend: bolt
 relay::backend_options: {}
 relay::puppet_service: puppetserver
 relay::puppet_user: puppet

@@ -117,49 +117,9 @@ namespace :acceptance do
     master.bolt_upload_file('spec/support/common/hiera-eyaml', '/etc/eyaml')
   end
 
-  desc 'Sets up the ServiceNow instance'
-  task :setup_servicenow_instance, [:sn_instance, :sn_user, :sn_password, :sn_token] do |_, args|
-    instance, user, password, token = servicenow_params(args)
-    if instance.nil?
-      # Start the mock ServiceNow instance. If an instance has already been started,
-      # then the script will remove the old instance before replacing it with the new
-      # one.
-      puts("Starting the mock ServiceNow instance at the master (#{master.uri})")
-      master.bolt_upload_file('./spec/support/acceptance/servicenow', '/tmp/servicenow')
-      master.bolt_run_script('spec/support/acceptance/start_mock_servicenow_instance.sh')
-      instance, user, password, token = "#{master.uri}:1080", 'mock_user', 'mock_password', 'mock_token'
-    else
-      # User provided their own ServiceNow instance so make sure that they've also
-      # included the instance's credentials
-      # Oauth tests will be skipped if a token is not provided.
-      raise 'The ServiceNow username must be provided' if user.nil?
-      raise 'The ServiceNow password must be provided' if password.nil?
-      puts "oauth token not provided so the oauth token tests will be skipped" if token.nil?
-    end
-
-    # Update the inventory file
-    puts('Updating the inventory.yaml file with the ServiceNow instance credentials')
-    inventory_hash = LitmusHelpers.inventory_hash_from_inventory_file
-    servicenow_group = inventory_hash['groups'].find { |g| g['name'] =~ %r{servicenow} }
-    unless servicenow_group
-      servicenow_group = { 'name' => 'servicenow_nodes' }
-      inventory_hash['groups'].push(servicenow_group)
-    end
-    servicenow_group['targets'] = [{
-      'uri' => instance,
-      'config' => {
-        'transport' => 'remote',
-        'remote' => {
-          'user' => user,
-          'password' => password,
-          'oauth_token' => token,
-        }
-      },
-      'vars' => {
-        'roles' => ['servicenow_instance'],
-      }
-    }]
-    write_to_inventory_file(inventory_hash, 'inventory.yaml')
+  desc 'Sets up an open-source Puppet Server on the master'
+  task :setup_oss do
+    master.bolt_run_script('spec/support/acceptance/install_oss.sh')
   end
 
   desc 'Installs the module on the master'

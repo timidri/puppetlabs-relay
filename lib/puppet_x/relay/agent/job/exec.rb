@@ -77,7 +77,7 @@ module PuppetX
               end
 
               if @run.state.status == :complete
-                Puppet.notice(_('Run %{id} finished with outcome %{outcome}') % { id: @run.id, outcome: @run.state.outcome || _('(unknown)') })
+                Puppet.notice(_('Run %{id} completed with outcome %{outcome}') % { id: @run.id, outcome: @run.state.outcome || _('(unknown)') })
                 job.disable
               end
             ensure
