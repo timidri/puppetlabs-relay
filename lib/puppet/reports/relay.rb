@@ -14,15 +14,14 @@ Puppet::Reports.register_report(:relay) do
       return
     end
 
-    reports = prepare_reports
-    return if reports.empty?
+    with_report do |report|
+      trigger_tokens = [*settings[:relay_trigger_token]]
+      trigger_tokens.each_with_index do |trigger_token, i|
+        Puppet.notice(_('Submitting report to Relay service at %{endpoint}, trigger index %{i}') % { endpoint: settings[:relay_api_url], i: i })
 
-    trigger_tokens = [*settings[:relay_trigger_token]]
-    trigger_tokens.each_with_index do |trigger_token, i|
-      Puppet.notice(_('Submitting batch of %{n} report(s) to Relay service at %{endpoint}, trigger index %{i}') % { n: reports.length, endpoint: settings[:relay_api_url], i: i })
-
-      relay_api = PuppetX::Relay::Util::HTTP::RelayAPI.new(settings[:relay_api_url], trigger_token)
-      relay_api.emit_event(reports: reports)
+        relay_api = PuppetX::Relay::Util::HTTP::RelayAPI.new(settings[:relay_api_url], trigger_token)
+        relay_api.emit_event(report)
+      end
     end
   rescue StandardError => e
     Puppet.err(_('Failed to submit reports to Relay service: %{e}') % { e: e })
@@ -32,12 +31,13 @@ Puppet::Reports.register_report(:relay) do
     Puppet::Node::Facts.indirection.find(host).values
   end
 
-  def prepare_reports
-    # Do not report unless something has changed.
-    return [] if status == 'unchanged' && !noop_pending
+  def with_report
+    return unless block_given?
 
-    # TODO: Collect multiple reports and batch them.
-    [{
+    # Do not report unless something has changed.
+    return if status == 'unchanged' && !noop_pending
+
+    yield({
       host: host,
       noop: noop,
       facts: facts,
@@ -57,6 +57,6 @@ Puppet::Reports.register_report(:relay) do
             out_of_sync_count: value.out_of_sync_count,
           }
         end,
-    }]
+    })
   end
 end
