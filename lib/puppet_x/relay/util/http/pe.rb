@@ -1,6 +1,8 @@
-require 'puppet'
+require 'openssl'
 
-require_relative '../../agent/model'
+require 'puppet'
+require 'puppet/util/package'
+
 require_relative 'client'
 
 module PuppetX
@@ -17,10 +19,20 @@ module PuppetX
 
           def update_http!(http)
             http.cert_store = store
+
+            http.ssl_version =
+              if Puppet::Util::Package.versioncmp(Puppet.version, '6.0')
+                :TLSv1_2
+              else
+                :TLSv1
+              end
+
+            http.key = OpenSSL::PKey::RSA.new(File.read(Puppet.settings[:hostprivkey]))
+            http.cert = OpenSSL::X509::Certificate.new(File.read(Puppet.settings[:hostcert]))
           end
 
           def update_request!(request)
-            request['X-Authentication'] = @token
+            request['X-Authentication'] = @token if @token
           end
 
           private

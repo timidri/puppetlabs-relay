@@ -1,0 +1,6 @@
+---
+relay::backend: ssh
+relay::backend_options: {}
+relay::puppet_service: puppetserver
+relay::puppet_user: puppet
+relay::puppet_group: puppet

@@ -86,6 +86,7 @@ RSpec/MessageSpies:
 Style/Documentation:
   Exclude:
   - lib/puppet/parser/functions/**/*
+  - lib/puppet_x/**/*
   - spec/**/*
 Style/WordArray:
   EnforcedStyle: brackets

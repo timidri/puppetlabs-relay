@@ -1,5 +1,6 @@
 require_relative '../../util/http'
 require_relative '../model'
+require_relative '../job/schedule'
 
 module PuppetX
   module Relay
@@ -15,8 +16,11 @@ module PuppetX
           end
 
           # @param run [Model::Run]
+          # @param state_dir [String]
+          # @param schedule [Job::Schedule]
           # @return [Model::Run]
-          def exec(run)
+          # @abstract
+          def exec(run, state_dir, schedule) # rubocop:disable Lint/UnusedMethodArgument
             raise NotImplementedError
           end
         end

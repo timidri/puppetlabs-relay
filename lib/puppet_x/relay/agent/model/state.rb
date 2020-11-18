@@ -14,11 +14,11 @@ module PuppetX
             def from_h(hsh)
               hsh = hsh.dup
 
-              hsh['status'] = hsh['status'].gsub('-', '_').intern
+              hsh['status'] = hsh['status'].tr('-', '_').to_sym
               hsh['next_update_before'] = Time.iso8601(hsh['next_update_before']) if hsh.key? 'next_update_before'
               hsh['updated_at'] = Time.iso8601(hsh['updated_at']) if hsh.key? 'updated_at'
 
-              self.new(hsh)
+              new(hsh)
             end
           end
 
@@ -47,9 +47,9 @@ module PuppetX
           # @param outcome [String]
           # @return [self]
           def to_complete(outcome: nil)
-            raise InvalidTransitionError, "Cannot transition status to #{:complete.to_s} from #{status.to_s}" unless [:pending, :in_progress].include? status
+            raise InvalidTransitionError, "Cannot transition status to complete from #{status}" unless [:pending, :in_progress].include? status
 
-            upd = self.dup
+            upd = dup
             upd.instance_variable_set(:@status, :complete)
             upd.instance_variable_set(:@outcome, outcome)
             upd.instance_variable_set(:@next_update_before, nil)
@@ -60,24 +60,29 @@ module PuppetX
           # @param job_id [String]
           # @return [self]
           def to_in_progress(next_update_before, job_id: nil)
-            raise InvalidTransitionError, "Cannot transition status to #{:in_progress.to_s} from #{status.to_s}" unless [:pending, :in_progress].include? status
+            raise InvalidTransitionError, "Cannot transition status to in-progress from #{status}" unless [:pending, :in_progress].include? status
 
-            upd = self.dup
+            upd = dup
             upd.instance_variable_set(:@status, :in_progress)
             upd.instance_variable_set(:@job_id, job_id) if job_id
             upd.instance_variable_set(:@next_update_before, next_update_before)
             upd
           end
 
+          # @return [Hash]
+          def to_h
+            {
+              'status' => status.to_s.tr('_', '-'),
+              'outcome' => outcome,
+              'job_id' => job_id,
+              'next_update_before' => (next_update_before.utc.iso8601 unless next_update_before.nil?),
+              'updated_at' => (updated_at.utc.iso8601 unless updated_at.nil?),
+            }.reject { |_k, v| v.nil? }
+          end
+
           # @return [String]
           def to_json(*args)
-            {
-              status: status.to_s.gsub('_', '-'),
-              outcome: outcome,
-              job_id: job_id,
-              next_update_before: (next_update_before.utc.iso8601 unless next_update_before.nil?),
-              updated_at: (updated_at.utc.iso8601 unless updated_at.nil?),
-            }.select { |k, v| !v.nil? }.to_json(*args)
+            to_h.to_json(*args)
           end
         end
       end

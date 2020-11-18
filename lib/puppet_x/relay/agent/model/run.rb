@@ -18,7 +18,7 @@ module PuppetX
               hsh['scope'] = Scope.from_h(hsh['scope']) if hsh.key? 'scope'
               hsh['state'] = State.from_h(hsh['state']) if hsh.key? 'state'
 
-              self.new(hsh)
+              new(hsh)
             end
           end
 
@@ -49,7 +49,7 @@ module PuppetX
           # @param state [State]
           # @return [self]
           def with_state(state)
-            upd = self.dup
+            upd = dup
             upd.instance_variable_set(:@state, state)
             upd
           end

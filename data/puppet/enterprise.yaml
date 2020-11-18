@@ -1,0 +1,5 @@
+---
+relay::backend: orchestrator
+relay::puppet_service: pe-puppetserver
+relay::puppet_user: pe-puppet
+relay::puppet_group: pe-puppet

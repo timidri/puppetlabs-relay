@@ -7,7 +7,8 @@ module PuppetX
       module Job
         class Base
           # @param job [Puppet::Scheduler::Job]
-          def handle(job)
+          # @abstract
+          def handle(job) # rubocop:disable Lint/UnusedMethodArgument
             raise NotImplementedError
           end
 

@@ -16,7 +16,7 @@ describe 'Relay report processor' do
     allow(processor).to receive(:host).and_return 'fqdn'
     mock_event_as_resource_status(processor, 'success', false)
 
-    expect_sent_report(expected_credentials) do |payload|
+    expect_sent_report(processor, expected_credentials) do |payload|
       expect(payload['data']['report']['status']).to eq('changed')
     end
 

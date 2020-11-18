@@ -5,17 +5,15 @@ module PuppetX
     module Agent
       module Backend
         class Dummy < Base
-          def exec(run)
-            # Let some time pass.
-            sleep(5)
+          def exec(run, schedule)
+            new_state =
+              if schedule.elapsed > 5
+                run.state.to_complete(outcome: 'finished')
+              else
+                run.state.to_in_progress(schedule.next_update_before)
+              end
 
-            # Update state to complete.
-            run = run.with_state(run.state.to_complete(outcome: 'finished'))
-
-            _resp = @relay_api.put_run_state(run)
-            # XXX: FIXME: Handle errors here!
-
-            run
+            run.with_state(new_state)
           end
         end
       end

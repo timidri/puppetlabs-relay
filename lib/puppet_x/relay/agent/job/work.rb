@@ -14,10 +14,10 @@ module PuppetX
           end
 
           # @param item [Base]
-          # @param interval_s [Integer]
-          def add(item, interval_s)
+          # @param interval [Integer]
+          def add(item, interval = 0)
             elim_disabled
-            @jobs << item.to_job(interval_s)
+            @jobs << item.to_job(interval)
             self
           end
 
