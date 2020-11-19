@@ -56,6 +56,8 @@ Puppet::Reports.register_report(:relay) do
             title: value.title,
             change_count: value.change_count,
             out_of_sync_count: value.out_of_sync_count,
+            containment_path: value.containment_path,
+            corrective_change: value.corrective_change,
           }
         end,
     })

@@ -286,6 +286,9 @@ For each resource that changed or was out of sync when the run occurred, a map o
 * `change_count`: The number of property changes to the resource
 * `out_of_sync_count`: The number of properties that were out of sync on the
   node
+* `containment_path`: The full hierarchical path to the resource
+* `corrective_change`: True if this change reflected a correction of
+  configuration drift, false otherwise
 
 ## Limitations
 
