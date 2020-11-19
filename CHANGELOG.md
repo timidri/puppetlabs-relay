@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## Release 2.1.0
+
+Added: Reports now include whether a resource had a corrective change and its containment path.
+
 ## Release 2.0.0
 
 Added: Support for bidirectional communication with the Relay SaaS using an
