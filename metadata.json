@@ -1,8 +1,8 @@
 {
   "name": "puppetlabs-relay",
-  "version": "1.2.0",
+  "version": "2.0.0",
   "author": "Hunter Haugen",
-  "summary": "Configure a puppetserver to submit reports to Relay workflow triggers",
+  "summary": "Configure Puppet to work with Relay",
   "license": "Apache-2.0",
   "source": "https://github.com/puppetlabs/puppetlabs-relay",
   "project_page": "https://relay.sh",

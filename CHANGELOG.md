@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## Release 2.0.0
+
+Added: Support for bidirectional communication with the Relay SaaS using an
+agent.
+
+Changed: The Puppet class was adjusted to better support both the SaaS agent and the report processor.
+
 ## Release 1.2.0
 
 Added: Foss puppetserver support.
