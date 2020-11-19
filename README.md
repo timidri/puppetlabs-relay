@@ -48,7 +48,6 @@ triggers:
         resource_statuses: !Data resource_statuses
         status: !Data status
         time: !Data time
-        facts: !Data facts
 ```
 
 You'll then copy the access token from the sidebar:
@@ -252,11 +251,6 @@ The hostname that submitted the report.
 
 True if the agent was run in no-op mode, false if the agent was run in enforce
 mode.
-
-##### `facts`
-
-This is the full hash of puppet facts on the host at report time as reported by
-`facter`.
 
 ##### `status`
 

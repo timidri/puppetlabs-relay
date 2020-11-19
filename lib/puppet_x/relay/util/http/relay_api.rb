@@ -35,10 +35,7 @@ module PuppetX
             resp = put("_puppet/runs/#{run.id}/state", body: run.state)
             resp.value
 
-            # FIXME: Un-stub this!
-            #data = JSON.parse(resp.body)
-            data = run.state.to_h
-            data['updated_at'] = Time.now.iso8601
+            data = JSON.parse(resp.body)
             run.with_state(Agent::Model::State.from_h(data))
           end
 

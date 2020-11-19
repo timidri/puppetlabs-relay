@@ -40,7 +40,8 @@ Puppet::Reports.register_report(:relay) do
     yield({
       host: host,
       noop: noop,
-      facts: facts,
+      # TODO: We should consider selectively reporting facts.
+      # facts: facts,
       status: status,
       time: time.iso8601,
       configuration_version: configuration_version,
