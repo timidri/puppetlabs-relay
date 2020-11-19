@@ -1,0 +1,32 @@
+<%- |
+  Optional[Boolean] $debug,
+  Optional[Boolean] $test,
+  Optional[Stdlib::HTTPUrl] $relay_api_url,
+  Optional[Sensitive[String]] $relay_connection_token,
+  Optional[Variant[Array[Sensitive[String]], Sensitive[String]]] $relay_trigger_token,
+  String $backend,
+  Hash[String, Variant[Data, Sensitive[Data]]] $backend_options,
+| -%>
+# This file is managed by Puppet. DO NOT EDIT.
+<%= to_yaml(({
+  'debug' => $debug,
+  'test' => $test,
+  'relay_api_url' => $relay_api_url,
+  'relay_connection_token' => $relay_connection_token.then |$t| { $t.unwrap },
+  'relay_trigger_token' => $relay_trigger_token.then |$ts| {
+    if $ts =~ Array[Sensitive[String]] {
+      $ts.map |$t| { $t.unwrap }
+    } else {
+      $ts.unwrap
+    }
+  },
+  'backend' => $backend,
+} + Hash($backend_options.map |$key, $value| {
+  [
+    "backend_${backend}_${key}",
+    $value =~ Sensitive[Data] ? {
+      true    => $value.unwrap,
+      default => $value,
+    },
+  ]
+})).filter |$key, $value| { $value =~ NotUndef }) -%>

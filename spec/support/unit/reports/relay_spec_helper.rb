@@ -24,8 +24,7 @@ end
 
 def default_settings_hash
   {
-    'reports_url'  => 'https://api.test/api/events',
-    'access_token' => 'test_token',
+    'relay_trigger_token' => ['test_token'],
   }
 end
 
@@ -36,7 +35,7 @@ def default_credentials
 end
 
 def mock_settings_file(settings_hash)
-  allow(YAML).to receive(:load_file).with(%r{relay_reporting\.yaml}).and_return(settings_hash)
+  allow(YAML).to receive(:load_file).with(%r{relay\.yaml}).and_return(settings_hash)
 end
 
 def new_mock_response(status, body)
@@ -54,8 +53,13 @@ end
 
 def new_mock_resource_status(events, status_changed, status_failed)
   status = instance_double('resource status')
+  allow(status).to receive(:resource_type).and_return('Mock_resource')
+  allow(status).to receive(:title).and_return('foo')
+  allow(status).to receive(:skipped).and_return(false)
   allow(status).to receive(:events).and_return(events)
+  allow(status).to receive(:change_count).and_return(0)
   allow(status).to receive(:out_of_sync).and_return(status_changed)
+  allow(status).to receive(:out_of_sync_count).and_return(status_changed ? 1 : 0)
   allow(status).to receive(:failed).and_return(status_failed)
   allow(status).to receive(:containment_path).and_return(['foo', 'bar'])
   allow(status).to receive(:file).and_return('site.pp')
@@ -64,18 +68,18 @@ def new_mock_resource_status(events, status_changed, status_failed)
 end
 
 def mock_events(processor, *events)
-  allow(processor).to receive(:resource_statuses).and_return('mock_resource' => new_mock_resource_status(events, true, false))
+  allow(processor).to receive(:resource_statuses).and_return('Mock_resource[foo]' => new_mock_resource_status(events, true, false))
 end
 
 def mock_event_as_resource_status(processor, event_status, event_corrective_change, status_changed = true, status_failed = false)
   mock_events = [new_mock_event(status: event_status, corrective_change: event_corrective_change)]
   mock_resource_status = new_mock_resource_status(mock_events, status_changed, status_failed)
-  allow(processor).to receive(:resource_statuses).and_return('mock_resource' => mock_resource_status)
+  allow(processor).to receive(:resource_statuses).and_return('Mock_resource[foo]' => mock_resource_status)
 end
 
-def expect_sent_report(expected_credentials = {})
+def expect_sent_report(processor, expected_credentials = {})
   # do_request will only be called to send an event
-  expect(processor).to receive(:do_request) do |endpoint, _, request_body, actual_credentials|
+  expect(processor).to receive(:process) do |endpoint, _, request_body, actual_credentials|
     yield request_body
     expect(actual_credentials).to include(expected_credentials)
     new_mock_response(200, '')
