@@ -54,7 +54,7 @@ triggers:
 ```
 
 You'll then copy the access token from the Triggers section of the workflow page:
-![ Copying access token from the workflow page](https://github.com/puppetlabs/puppetlabs-relay/raw/master/media/push-trigger.png)
+![ Copying access token from the workflow page](https://github.com/puppetlabs/puppetlabs-relay/raw/main/media/push-trigger.png)
 
 To see an example of a Relay workflow that uses this trigger, see 
 [the puppet-shutdown-ec2 example workflow](https://github.com/puppetlabs/relay-workflows/tree/master/puppet-shutdown-ec2), which watches for unexpected changes to the `sudoers` file 
@@ -69,7 +69,7 @@ to the **Connections** screen and click **Add connection**. Select
 the **Puppet** connection type from the drop-down menu, give it a
 name, and save the resulting token - it won't be displayed again.
 
-![Adding a new Puppet connection in Relay](https://github.com/puppetlabs/puppetlabs-relay/raw/master/new-connection.png)
+![Adding a new Puppet connection in Relay](https://github.com/puppetlabs/puppetlabs-relay/raw/main/new-connection.png)
 
 ### 2. Configure the puppetserver
 
