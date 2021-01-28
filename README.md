@@ -18,25 +18,28 @@ the Relay SaaS event trigger API. Workflows may subscribe to the triggers and
 decide whether to run based on the run status and log lines.
 
 Second, it runs a Relay agent on your puppetserver which can be used to trigger
-puppet run (without requiring inbound connectivity to your puppetserver).
+puppet runs on specific nodes, without requiring inbound connectivity from 
+Relay to your puppetserver.
 
 ## Setup
 
-### 0. Requirements
+### Requirements
 
 You must already have a puppetserver to which puppet agents submit reports and
-that can connect to the internet.
+that can connect to the internet. Because you'll need to store access tokens
+for Relay, we strongly recommend using eyaml to encrypt the tokens as hiera keys.
 
-You must also have a Relay account registered. You can sign up for one at
-[https://relay.sh/](https://relay.sh/) if you do not already have one.
+You must also have a Relay account registered. You can sign up for free at
+[https://relay.sh/](https://relay.sh/) if you do not already have an account.
 
-### 1. Setup the Relay workflow
+### Set up Relay
 
-The report processor needs a Relay push-trigger access token that is
-authorized to talk to the Relay API. To get an access token, add a workflow
+The report processor needs a Relay [push-trigger access token](https://relay.sh/docs/reference/relay-workflows/#push) that is
+authorized to talk to the Relay API. To generate an access token, add a workflow
 push trigger to a Relay workflow and copy the token from the sidebar.
 
-The workflow trigger in Relay will look something like this:
+The workflow trigger in Relay will look like this:
+
 ```yaml
 triggers:
   - name: puppet-report
@@ -50,22 +53,30 @@ triggers:
         time: !Data time
 ```
 
-You'll then copy the access token from the sidebar:
-![ Copying access token from the sidebar](https://github.com/puppetlabs/puppetlabs-relay/raw/tasks/update-instructions/media/push-trigger.png)
+You'll then copy the access token from the Triggers section of the workflow page:
+![ Copying access token from the workflow page](https://github.com/puppetlabs/puppetlabs-relay/raw/master/media/push-trigger.png)
 
-To see an example of a Relay workflow that uses this trigger, [check it
-out here](https://github.com/puppetlabs/relay-workflows/tree/master/puppet-shutdown-ec2).
+To see an example of a Relay workflow that uses this trigger, see 
+[the puppet-shutdown-ec2 example workflow](https://github.com/puppetlabs/relay-workflows/tree/master/puppet-shutdown-ec2), which watches for unexpected changes to the `sudoers` file 
+and shuts down affected nodes for investigation.
 
-Please see [our
-documentation](https://relay.sh/docs/reference/relay-workflows/#push) for
-further details on configuring push triggers.
+To use the Relay agent capability, which enables you to trigger
+Puppet runs from Relay workflows, you'll also need to set up a 
+Puppet connection in the Relay app. This will generate a separate
+token that the Relay agent, running on your puppetserver, uses to
+authenticate run requests from the service. To configure this, go
+to the **Connections** screen and click **Add connection**. Select
+the **Puppet** connection type from the drop-down menu, give it a
+name, and save the resulting token - it won't be displayed again.
+
+![Adding a new Puppet connection in Relay](https://github.com/puppetlabs/puppetlabs-relay/raw/master/new-connection.png)
 
 ### 2. Configure the puppetserver
 
 The report processor may be automatically set up by classifying the puppetserver
 host with the `relay` class. This class will:
 
-1. configure the report processor list of the puppetserver to include the
+1. configure the report processor setting on the puppetserver to include the
    `relay` report processor if you specify one or more trigger tokens
 1. (on Puppet Enterprise) reload the puppetserver process to load the new report
    processor
@@ -73,49 +84,75 @@ host with the `relay` class. This class will:
    connection token
 1. set up the Relay agent configuration and service to run automatically
 
-The classification will look something like this for Puppet Enterprise:
+For Puppet Enterprise, add the `relay` class to the Node Classifier group 
+that contains your puppetmasters. Open source Puppet classification will 
+vary per local setup, but you'll need to make sure the hosts running
+puppetservers also are classified with the `relay` class.
 
-```puppet
-class { 'relay':
-  relay_trigger_token => [
-    Sensitive('eyJhbG...OCMGbtUc'),
-  ],
-  relay_connection_token => Sensitive('eyJhbG...adQssw5c'),
-  backend_options => {
-    # This is a Puppet RBAC token for connecting to the Orchestrator API,
-    # generated using the `puppet-access` command.
-    token => Sensitive('0a1Tje...ng-3eq4'),
-  },
-}
+We recommend using hiera to store the configuration for the Relay module,
+and specifically to use hiera-eyaml to prevent hardcoding the tokens in
+your configuration. For more information on hiera-eyaml, see the [hiera-eyaml documentation on Github](https://github.com/voxpupuli/hiera-eyaml). You'll need to hiera keys with the eyaml-encrypted values of the Relay push token at a minimum.
+Additionally, if you're using the Relay agent functionality, add the token for
+the Puppet connection and either the PE Orchestrator access token or 
+a ssh key to enable Bolt to access nodes.
+
+```yaml
+lookup_options:
+  "^relay::.*token":
+    convert_to: "Sensitive"
+
+# this token is from the "trigger" configuration
+relay::relay_trigger_token: >
+   ENC[PKCS7,.....]
+# this token is from the Puppet connection setup
+relay::relay_connection_token: >
+   ENC[PKCS7,.....]
+# For PE, this token is from `puppet access show`
+relay::backend_options::token: >
+   ENC[PKCS7,.....]
+# For ssh access to nodes, configure ssh backend options instead
+relay::backend_options::ssh_host_key_check: false,
+relay::backend_options::ssh_user: puppet-automation
+relay::backend_options::ssh_password: >
+   ENC[PKCS7,.....]
 ```
 
-For open source Puppet, the agent can use Bolt to execute the Puppet agent:
-
-```puppet
-class { 'relay':
-  # ...
-  backend_options => {
-    ssh_host_key_check => false,
-    ssh_user => 'puppet-automation',
-    ssh_password => Sensitive('@utom@tion'),
-  },
-}
-```
 
 ## Example #1: Trigger Relay workflow from Puppet run
 
-Run the Puppet agent (either in noop or enforce mode) to trigger the Relay workflow.
+Run the Puppet agent (either in noop or enforce mode) to trigger a Relay workflow. 
 
-Note that the report will only be sent if resources are out of sync.
+If the Relay report processor detects an out-of-sync resource, with the agent
+in either no-op or enforce mode, it will send the report details to the Relay
+push API, authenticated with the `relay_trigger_token` we configured above.
+The workflow can then take action using any combination the steps from the 
+[Relay integration library](https://relay.sh/library/).
 
-```bash
-$ puppet agent -t --noop
-```
+The example [puppet-shutdown-ec2](https://github.com/puppetlabs/relay-workflows/tree/master/puppet-shutdown-ec2) module looks for unexpected changes in sudoers and
+fences off potentially compromised nodes by shutting them down.
 
 ## Example #2: Trigger Puppet run from Relay
 
-Configure a Puppet step in your Relay workflow:
+To connect Relay workflows to your Puppet estate, configure the
+Puppet connection in Relay as described above. Make sure the relay
+agent is running on your puppetserver node; this agent makes outbound
+connections to periodically poll the Relay service for new actions
+to take, and will then use the transport configured in `backend_options`
+parameters to kick off Puppet agent runs on the nodes the workflow
+specifies.
+
+To set this up, add a Puppet connection in Relay, then add a step like 
+the following to your Relay workflow. Make sure the `name` field in the 
+`!Connection` value matches the name you set at creation time. In this
+example, the workflow has a parameter `host` which the user supplies;
+instead of `!Parameter host`, you could use the [output of an earlier step](https://relay.sh/docs/using-workflows/passing-data-into-workflow-steps/) or
+[data fields from a push or webhook trigger](https://relay.sh/docs/using-workflows/using-triggers/#push-triggers).
+
 ```yaml
+parameters:
+  host:
+    description: Which host to kick off a puppet agent run
+steps:
 - name: start-puppet-run
   image: relaysh/puppet-step-run-start
   spec:
