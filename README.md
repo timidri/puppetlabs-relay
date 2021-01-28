@@ -103,19 +103,21 @@ lookup_options:
 
 # this token is from the "trigger" configuration
 relay::relay_trigger_token: >
-   ENC[PKCS7,.....]
+    ENC[PKCS7,.....]
 # this token is from the Puppet connection setup
 relay::relay_connection_token: >
-   ENC[PKCS7,.....]
+    ENC[PKCS7,.....]
 # For PE, this token is from `puppet access show`
-relay::backend_options::orchestrator::token: >
-   ENC[PKCS7,.....]
+relay::backend_options:
+  token: >
+    ENC[PKCS7,.....]
 # For ssh access to nodes, configure ssh backend options instead
 relay::backend: ssh
-relay::backend_options::ssh::host_key_check: false,
-relay::backend_options::ssh::user: puppet-automation
-relay::backend_options::ssh::password: >
-   ENC[PKCS7,.....]
+relay::backend_options:
+  host_key_check: false,
+  user: puppet-automation
+  password: >
+    ENC[PKCS7,.....]
 ```
 
 
