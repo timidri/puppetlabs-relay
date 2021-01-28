@@ -69,7 +69,7 @@ to the **Connections** screen and click **Add connection**. Select
 the **Puppet** connection type from the drop-down menu, give it a
 name, and save the resulting token - it won't be displayed again.
 
-![Adding a new Puppet connection in Relay](https://github.com/puppetlabs/puppetlabs-relay/raw/main/new-connection.png)
+![Adding a new Puppet connection in Relay](https://github.com/puppetlabs/puppetlabs-relay/raw/main/media/new-connection.png)
 
 ### 2. Configure the puppetserver
 
