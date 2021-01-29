@@ -30,16 +30,17 @@ module PuppetX
           # @param run [Model::Run]
           # @param schedule [Job::Schedule]
           def deploy(run, schedule)
-            resp = @orchestrator_api.post(
-              'command/deploy',
-              body: {
+            payload = {
                 environment: run.environment,
                 scope: run.scope,
-                noop: run.noop,
                 debug: run.debug,
                 trace: run.trace,
                 evaltrace: run.evaltrace,
-              },
+            }
+            run.noop ? payload[:noop] = true : payload[:no_noop] = true
+            resp = @orchestrator_api.post(
+              'command/deploy',
+              body: payload,
             )
             resp.value
 
