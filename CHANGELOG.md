@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## Release 2.1.1
+
+Changed no-op logic to match orchestrator API's rules for overriding hardcoded
+noop=true via no_noop flag; docs updates.
+
 ## Release 2.1.0
 
 Added: Reports now include whether a resource had a corrective change and its containment path.
