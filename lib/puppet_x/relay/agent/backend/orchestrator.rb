@@ -31,11 +31,11 @@ module PuppetX
           # @param schedule [Job::Schedule]
           def deploy(run, schedule)
             payload = {
-                environment: run.environment,
-                scope: run.scope,
-                debug: run.debug,
-                trace: run.trace,
-                evaltrace: run.evaltrace,
+              environment: run.environment,
+              scope: run.scope,
+              debug: run.debug,
+              trace: run.trace,
+              evaltrace: run.evaltrace,
             }
             run.noop ? payload[:noop] = true : payload[:no_noop] = true
             resp = @orchestrator_api.post(

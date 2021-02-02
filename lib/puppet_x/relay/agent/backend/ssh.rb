@@ -16,7 +16,7 @@ module PuppetX
 
           protected
 
-          def format_commands(run, _state_dir)
+          def format_commands(*)
             raise NotImplementedError
           end
         end

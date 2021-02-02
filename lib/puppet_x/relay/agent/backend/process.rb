@@ -1,5 +1,6 @@
 require 'puppet'
 require 'puppet/util/lockfile'
+require 'english'
 
 require_relative 'base'
 
@@ -21,7 +22,7 @@ module PuppetX
                 end
 
               ::Process.wait(pid, ::Process::WNOHANG | ::Process::WUNTRACED)
-              statuses << $?
+              statuses << $CHILD_STATUS
             end
 
             new_state =

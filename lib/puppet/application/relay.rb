@@ -6,6 +6,8 @@ require 'puppet/util/pidlock'
 
 require_relative '../../puppet_x/relay'
 
+# This class extends puppet CLI framework to add
+# a `puppet relay` subcommand for the relay agent.
 class Puppet::Application::Relay < Puppet::Application
   def summary
     _('The agent for Relay by Puppet')

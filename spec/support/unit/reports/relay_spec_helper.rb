@@ -30,7 +30,7 @@ end
 
 def default_credentials
   {
-    :access_token => 'test_token',
+    access_token: 'test_token',
   }
 end
 
@@ -79,7 +79,7 @@ end
 
 def expect_sent_report(processor, expected_credentials = {})
   # do_request will only be called to send an event
-  expect(processor).to receive(:process) do |endpoint, _, request_body, actual_credentials|
+  expect(processor).to receive(:process) do |_endpoint, _, request_body, actual_credentials|
     yield request_body
     expect(actual_credentials).to include(expected_credentials)
     new_mock_response(200, '')

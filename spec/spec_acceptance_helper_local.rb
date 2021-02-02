@@ -1,7 +1,7 @@
-# frozen_string_literal: true
 # rubocop:disable Style/AccessorMethodName
+# frozen_string_literal: true
+
 require 'support/acceptance/helpers'
-#require 'support/acceptance/shared_examples'
 require 'support/acceptance/shared_contexts'
 
 RSpec.configure do |config|
@@ -12,7 +12,7 @@ RSpec.configure do |config|
     # Puppet runs (one triggered by service vs one we trigger)
     run_shell('puppet resource service puppet ensure=stopped')
 
-    trigger_puppet_run()
+    trigger_puppet_run
   end
 end
 

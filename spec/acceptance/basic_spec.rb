@@ -2,7 +2,8 @@ require 'spec_acceptance_helper'
 
 describe 'Relay reporting' do
   let(:params) do
-    relay_config = bolt_config['remote']
+    # Rubocop says this is a useless assignment
+    # relay_config = bolt_config['remote']
 
     {
       reports_url: 'https://api.stage.relay-infra.net/api/events',

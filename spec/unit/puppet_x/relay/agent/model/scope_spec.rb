@@ -1,4 +1,5 @@
 require 'puppet_x/relay/agent/model/scope'
+require 'JSON'
 
 describe 'Scope model' do
   it 'creates the correct class for a given hash' do
