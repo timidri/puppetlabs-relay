@@ -1,6 +1,6 @@
 require 'puppet'
 require 'puppet/util/lockfile'
-require 'english'
+require 'English'
 
 require_relative 'base'
 
