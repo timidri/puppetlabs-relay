@@ -2,10 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## Release 2.1.5
+
+Releases v2.1.2, v2.1.3, and v2.1.4 are skipped.
+
+Fixed: Rubocop and testing tweaks
+Fixed: Updated HEAD's branch name
+
 ## Release 2.1.1
 
 Changed no-op logic to match orchestrator API's rules for overriding hardcoded
-noop=true via no_noop flag; docs updates.
+noop=true via no\_noop flag; docs updates.
 
 ## Release 2.1.0
 
