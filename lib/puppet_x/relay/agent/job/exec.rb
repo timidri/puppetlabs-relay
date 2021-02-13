@@ -12,7 +12,7 @@ module PuppetX
       module Job
         class Exec < Base
           # @param backend [Backend::Base]
-          # @param run [Model::Run]
+          # @param run [Model::Stateful]
           # @param state_dir [String]
           def initialize(backend, run, state_dir)
             @backend = backend
@@ -64,6 +64,13 @@ module PuppetX
 
               begin
                 @run = @backend.exec(@run, @state_dir, sched)
+              rescue NotImplementedError => e
+                Puppet.log_exception(e, _('The backend %{backend_name} does not support the configuration for run %{id}: %{message}') % {
+                  backend_name: @backend.class.name,
+                  id: @run.id,
+                  message: e.message,
+                })
+                @run = @run.with_state(@run.state.to_complete(outcome: 'error'))
               rescue StandardError => e
                 Puppet.log_exception(e, _('Run %{id} encountered an error during execution: %{message} (%{retries} retries remaining)') % { id: @run.id, message: e.message, retries: @retries })
 

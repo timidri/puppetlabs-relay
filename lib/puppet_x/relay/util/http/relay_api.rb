@@ -19,17 +19,26 @@ module PuppetX
             raise MissingTokenError unless @token
           end
 
-          # @return [Array<Agent::Model::Run>]
+          # @return [Array<Agent::Model::Stateful>]
           def get_runs
             resp = get('_puppet/runs')
             resp.value
 
             data = JSON.parse(resp.body)
-            data['runs'].map { |run| Agent::Model::Run.from_h(run) }
+            data['runs'].map { |run|
+              case run['type']
+              when 'run', nil
+                Agent::Model::Run.from_h(run)
+              when 'task-run'
+                Agent::Model::TaskRun.from_h(run)
+              when 'plan-run'
+                Agent::Model::PlanRun.from_h(run)
+              end
+            }.compact
           end
 
-          # @param run [Agent::Model::Run]
-          # @return [Agent::Model::Run]
+          # @param run [Agent::Model::Stateful]
+          # @return [Agent::Model::Stateful]
           def put_run_state(run)
             Puppet.debug(_('Updating run %{id} state to %{state}') % { id: run.id, state: run.state.inspect })
             resp = put("_puppet/runs/#{run.id}/state", body: run.state)
@@ -39,7 +48,7 @@ module PuppetX
             run.with_state(Agent::Model::State.from_h(data))
           end
 
-          # @param run [Agent::Model::Run]
+          # @param run [Agent::Model::Stateful]
           def post_accept_run(run)
             resp = post("_puppet/runs/#{run.id}/accept")
             resp.instance_of? Net::HTTPAccepted

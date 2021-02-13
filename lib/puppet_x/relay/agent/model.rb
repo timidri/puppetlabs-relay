@@ -1,2 +1,6 @@
+require_relative 'model/plan_run'
 require_relative 'model/run'
+require_relative 'model/state'
 require_relative 'model/scope'
+require_relative 'model/stateful'
+require_relative 'model/task_run'
