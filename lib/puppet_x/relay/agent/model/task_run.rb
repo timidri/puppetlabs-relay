@@ -9,10 +9,11 @@ module PuppetX
   module Relay
     module Agent
       module Model
-        class Run
+        class TaskRun
           include Stateful
 
           class MissingScopeError < PuppetX::Relay::Agent::Error; end
+          class MissingNameError < PuppetX::Relay::Agent::Error; end
 
           class << self
             def from_h(hsh)
@@ -29,14 +30,24 @@ module PuppetX
           # @return [Scope]
           attr_reader :scope
 
+          # @return [String]
+          attr_reader :name
+
+          # @return [Hash]
+          attr_reader :params
+
           # @return [Boolean]
-          attr_reader :noop, :debug, :trace, :evaltrace
+          attr_reader :noop
+
+          # @return [Array<Hash>]
+          attr_reader :targets
 
           # @param opts [Hash]
           def initialize(opts)
             opts = defaults.merge(opts)
 
             raise MissingScopeError unless opts.key? 'scope'
+            raise MissingNameError unless opts.key? 'name'
 
             opts.each { |key, value| instance_variable_set("@#{key}", value) }
           end
@@ -47,10 +58,10 @@ module PuppetX
               id: id,
               environment: environment,
               scope: scope,
+              name: name,
+              params: params,
               noop: noop,
-              debug: debug,
-              trace: trace,
-              evaltrace: evaltrace,
+              targets: targets,
               state: state,
             }.to_json(*args)
           end
@@ -60,10 +71,9 @@ module PuppetX
           def defaults
             {
               'environment' => Puppet[:environment],
+              'params' => {},
               'noop' => false,
-              'debug' => false,
-              'trace' => false,
-              'evaltrace' => false,
+              'targets' => [],
             }
           end
         end

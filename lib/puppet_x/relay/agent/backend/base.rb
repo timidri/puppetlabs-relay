@@ -15,10 +15,10 @@ module PuppetX
             @relay_api = relay_api
           end
 
-          # @param run [Model::Run]
+          # @param run [Model::Stateful]
           # @param state_dir [String]
           # @param schedule [Job::Schedule]
-          # @return [Model::Run]
+          # @return [Model::Stateful]
           # @abstract
           def exec(run, state_dir, schedule) # rubocop:disable Lint/UnusedMethodArgument
             raise NotImplementedError

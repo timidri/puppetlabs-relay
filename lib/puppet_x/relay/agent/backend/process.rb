@@ -38,7 +38,7 @@ module PuppetX
           protected
 
           # @abstract
-          # @param run [Model::Run]
+          # @param run [Model::Stateful]
           # @param state_dir [String]
           # @return [Array<Array<String>>]
           def format_commands(run, state_dir) # rubocop:disable Lint/UnusedMethodArgument

@@ -26,6 +26,7 @@ module PuppetX
           protected
 
           def format_commands(run, state_dir)
+            raise NotImplementedError unless run.is_a?(Model::Run)
             raise NotImplementedError unless run.scope.is_a?(Model::Scope::Nodes)
 
             # Need a temporary Boltdir for some users that don't have a proper
