@@ -22,7 +22,7 @@ module PuppetX
             update_request!(req)
 
             http = Net::HTTP.new(uri.host, uri.port)
-            http.set_debug_output($stderr)
+            http.set_debug_output($stdout)
             http.use_ssl = uri.scheme == 'https'
             http.verify_mode = OpenSSL::SSL::VERIFY_PEER
             update_http!(http)
