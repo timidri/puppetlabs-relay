@@ -25,7 +25,6 @@ Puppet::Reports.register_report(:relay) do
     end
   rescue StandardError => e
     Puppet.err(_('Failed to submit reports to Relay service: %{e}') % { e: e })
-    Puppet.err(e.backtrace)
   end
 
   def facts
