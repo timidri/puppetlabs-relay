@@ -29,8 +29,6 @@ module PuppetX
             update_http!(http)
 
             puts("in request 0")
-            puts(http.cert_store.to_s)
-            puts(http.cert_store.chain)
             store = OpenSSL::X509::Store.new
             store.set_default_paths
             store.add_file(Puppet[:cacert])
