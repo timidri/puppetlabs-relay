@@ -1,5 +1,6 @@
 require 'net/http'
 require 'openssl'
+require 'ssl-test'
 
 module PuppetX
   module Relay
@@ -26,44 +27,14 @@ module PuppetX
             http.set_debug_output($stdout)
             http.use_ssl = uri.scheme == 'https'
             http.verify_mode = OpenSSL::SSL::VERIFY_PEER
-            http.verify_callback = -> (verify_ok, store_context) {
-              cert = store_context.current_cert
-              chain = store_context.chain
-              failed_cert_reason = [store_context.error, store_context.error_string] if store_context.error != 0
-              verify_ok
-            }
 
             update_http!(http)
 
-            puts("in request 0")
-            puts(http.ca_path)
-            store = OpenSSL::X509::Store.new
-            store.set_default_paths
-            store.add_file(Puppet[:cacert])
-            newstore = store.add_file(Puppet[:cacrl])
-            http.cert_store = newstore
-            puts(store)
-            puts(newstore)
-            puts(http.cert_store.to_s)
-            puts("in request 1")
-            puts(http.cert_store.chain)
-            puts("in request 2")
-
+            valid, error, cert = SSLTest.test "https://api.relay.sh"
+            puts("valid: ", valid)
+            puts("error: ", error)
+            puts("cert: ", cert)
             http.start { |sess| sess.request(req) }
-          rescue OpenSSL::SSL::SSLError => e
-            error = e.message
-            error = "error code %d: %s" % failed_cert_reason if failed_cert_reason
-            if error =~ /certificate verify failed/
-              domains = cert_domains(cert)
-              if matching_domains(domains, uri.host).none?
-                error = "hostname \"#{uri.host}\" does not match the server certificate (#{domains.join(', ')})"
-              end
-            end
-            @logger&.info { "SSLTest #{url} finished: #{error}" }
-            return [false, error, cert]
-          rescue => e
-            @logger&.error { "SSLTest #{url} failed: #{e.message}" }
-            return [nil, "SSL certificate test failed: #{e.message}", cert]
           end
 
           def get(path)
