@@ -1,4 +1,5 @@
 require 'net/http'
+require 'openssl'
 
 module PuppetX
   module Relay
@@ -26,6 +27,14 @@ module PuppetX
             http.use_ssl = uri.scheme == 'https'
             http.verify_mode = OpenSSL::SSL::VERIFY_PEER
             update_http!(http)
+
+            puts(http.cert_store.to_s)
+            store = OpenSSL::X509::Store.new
+            store.set_default_paths
+            store.add_file(Puppet[:cacert])
+            store.add_file(Puppet[:cacrl])
+            http.cert_store = store
+            puts(http.cert_store.to_s)
 
             http.start { |sess| sess.request(req) }
           end
