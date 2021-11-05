@@ -1,6 +1,7 @@
 require 'net/http'
 require 'openssl'
 require 'ssl-test'
+require 'puppet'
 
 module PuppetX
   module Relay
@@ -37,12 +38,36 @@ module PuppetX
             http.start { |sess| sess.request(req) }
           end
 
+          def request2(verb, path, body=nil)
+            url = URI.join(@base_url, path)
+
+            headers = { "Content-Type" => "application/json" }
+            update_request!(headers)
+
+            # This metric_id option is silently ignored by Puppet's http client
+            # (Puppet::Network::HTTP) but is used by Puppet Server's http client
+            # (Puppet::Server::HttpClient) to track metrics on the request made to the
+            # `reporturl` to store a report.
+            options = {
+              :metric_id => [:puppet, :report, :relay],
+              :include_system_store => true,
+            }
+
+            client = Puppet.runtime[:http]
+            body = body.to_json if body
+            client.post(url, body, headers: headers, options: options) do |response|
+              unless response.success?
+                Puppet.err _("Unable to submit report to %{url} [%{code}] %{message}") % { url: url.to_s, code: response.code, message: response.reason }
+              end
+            end
+          end
+
           def get(path)
             request(:get, path)
           end
 
           def post(path, body: nil)
-            request(:post, path, body: body)
+            request2(:post, path, body: body)
           end
 
           def put(path, body: nil)
